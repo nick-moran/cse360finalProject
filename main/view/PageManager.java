@@ -28,7 +28,6 @@ public class PageManager extends JPanel implements Observer{
 			newState = "invalid";
 		}
 		updatePanel((String)newState);
-		revalidate();
 	}
 	
 	private void updatePanel(String newState){
@@ -36,7 +35,8 @@ public class PageManager extends JPanel implements Observer{
 			remove(entry.getValue());
 		}
 		add(this.stateToPage.get(newState));
-		setVisible(true);
+		repaint();
+		revalidate();
 	}
 	
 }

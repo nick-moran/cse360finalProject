@@ -3,7 +3,7 @@ package main.view;
 
 import javax.swing.JMenuBar;
 
-import main.controller.*;
+import main.controller.ClickableOptions.*;
 import main.model.StateManager;
 
 public class MenuBar extends JMenuBar{
@@ -11,8 +11,10 @@ public class MenuBar extends JMenuBar{
 		MenuOption fileMenu = new MenuOption("File");
 		MenuOption aboutMenu = new MenuOption("About");
 		
-		fileMenu.addActions(new LoadRoster(state));
-		aboutMenu.addActions(new AboutClicked(state));
+		fileMenu.addActions(new LoadRosterOption(state), new AddAttendanceOption(state),
+				new SaveOption(state), new PlotDataOption(state));
+		
+		aboutMenu.addActions(new AboutOption(state));
 		
 		add(fileMenu);
 		add(aboutMenu);
