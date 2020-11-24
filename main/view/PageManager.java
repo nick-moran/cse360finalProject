@@ -8,26 +8,26 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import main.model.LoadRoster;
 import main.model.StateManager;
 import main.view.Pages.*;
 
 public class PageManager extends JPanel implements Observer{
 	private HashMap<String, JPanel>stateToPage;
 	
-	public PageManager() {
+	public PageManager(LoadRoster rosterLoader) {
 		this.stateToPage = new HashMap<String, JPanel>();
 		this.stateToPage.put("about", new AboutPage());
-		this.stateToPage.put("home", new HomePage());
-		this.stateToPage.put("invalid", new InvalidPage());
+		HomePage homePage = new HomePage();
+		rosterLoader.addObserver(homePage);
+		this.stateToPage.put("home", homePage);
 	}
 	
 	@Override
 	public void update(Observable updater, Object newState) {
-		if(this.stateToPage.containsKey((String)newState) == false) {
-			System.out.println("Not a valid state");
-			newState = "invalid";
+		if(newState.toString() == "home" || newState.toString() == "about") {
+			updatePanel((String)newState);
 		}
-		updatePanel((String)newState);
 	}
 	
 	private void updatePanel(String newState){

@@ -1,6 +1,7 @@
 package main.controller.ClickableOptions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 
@@ -15,5 +16,6 @@ public class LoadRosterOption extends ClickableItem{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		super.updateState("home");
+		super.updateState("Load");
 	}
 }
