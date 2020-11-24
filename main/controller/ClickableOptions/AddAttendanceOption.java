@@ -15,5 +15,6 @@ public class AddAttendanceOption extends ClickableItem{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		super.updateState("home");
+		super.updateState("Add Attendance");
 	}
 }

@@ -2,6 +2,7 @@ package main.view;
 
 import javax.swing.JFrame;
 
+import main.model.LoadRoster;
 import main.model.StateManager;
 
 public class ViewMain extends JFrame{
@@ -9,8 +10,11 @@ public class ViewMain extends JFrame{
 	public ViewMain(){
 		super("CSE360 Final Project");
 		StateManager state = new StateManager();
-		PageManager pageToShow = new PageManager();
+		LoadRoster dataReader = new LoadRoster();
+		PageManager pageToShow = new PageManager(dataReader);
 		state.addObserver(pageToShow);
+		state.addObserver(dataReader);
+		
 		
 		MenuBar menu = new MenuBar(state);
 		setJMenuBar(menu);
