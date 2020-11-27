@@ -1,6 +1,7 @@
 package main.model;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.io.*;
@@ -20,7 +21,9 @@ public class LoadRoster extends Observable implements Observer{
 	}
 	
 	public void findPath() {
+		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
 		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(filter);
 		int returnVal = chooser.showOpenDialog(null);
 		this.pathToCSV =  chooser.getSelectedFile();
 		
