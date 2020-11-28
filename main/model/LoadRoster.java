@@ -8,21 +8,17 @@ import java.io.*;
 import java.util.*;
 
 public class LoadRoster extends Observable implements Observer{
-	private ArrayList<ArrayList<String>> data;
+	private ArrayList<ArrayList<String>> tableData;
+	private ArrayList<String[]> extraUsers;
+	private int usersWithTime;
+	
 	private boolean rosterLoaded;
 	
 	public LoadRoster() {
-		this.data = new ArrayList<ArrayList<String>>();
+		this.tableData = new ArrayList<ArrayList<String>>();
 		rosterLoaded = false;
-	}
-	
-	private File findPath() {
-		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(filter);
-		chooser.showOpenDialog(null);
-		return chooser.getSelectedFile();
-		
+		usersWithTime = 0;
+		this.extraUsers = new ArrayList<String[]>();
 	}
 	
 	public void updateState(String newState){
@@ -31,16 +27,30 @@ public class LoadRoster extends Observable implements Observer{
 	}
 	
 	public String[][] getPassedData(){
-		int rows = this.data.size();
-		int rowLength = this.data.get(0).size();
+		int rows = this.tableData.size();
+		int rowLength = this.tableData.get(0).size();
 		int index = 0;
 		
 		String[][] passedData = new String[rows][rowLength];
-		for(ArrayList<String> row : data) {
+		for(ArrayList<String> row : tableData) {
 			passedData[index++] = row.toArray(new String[row.size()]);
 		}
 		
 		return passedData;
+	}
+	
+	public String[][] getExtraUsers(){
+		int numUsers = extraUsers == null ? 0 : extraUsers.size();
+		String[][] extraUsersArr = new String[numUsers][2];
+		int index = 0;
+		for(String[] extraUser : extraUsers) {
+			extraUsersArr[index++] = extraUser;
+		}
+		return extraUsersArr;
+	}
+	
+	public int getUsersWithTimeAdded() {
+		return usersWithTime;
 	}
 	
 	@Override
@@ -54,12 +64,21 @@ public class LoadRoster extends Observable implements Observer{
 		this.updateState(newState.toString());
 	}
 	
-	public void readCSVFile(File filePath) {
+	private File findPath() {
+		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(filter);
+		chooser.showOpenDialog(null);
+		return chooser.getSelectedFile();
+		
+	}
+	
+	private void readCSVFile(File filePath) {
 		try {
 			String fileLine;
 			BufferedReader bReader = new BufferedReader(new FileReader(filePath));
 			while ((fileLine = bReader.readLine()) != null) {
-				this.data.add(new ArrayList<>(Arrays.asList(fileLine.split(","))));
+				this.tableData.add(new ArrayList<>(Arrays.asList(fileLine.split(","))));
 			}
 			bReader.close();
 		}
@@ -72,7 +91,7 @@ public class LoadRoster extends Observable implements Observer{
 		this.rosterLoaded = true;
 	}
 	
-	public void readAttendanceData(File filePath) {
+	private void readAttendanceData(File filePath) {
 		HashMap<String, Integer> attendance = new HashMap<String, Integer>();
 		try {
 			String fileLine;
@@ -97,15 +116,21 @@ public class LoadRoster extends Observable implements Observer{
 		
 	}
 	
-	public void mapToData(HashMap<String, Integer> attendance) {
-		for(int i = 0; i < this.data.size(); i++) {
-			if(attendance.containsKey(this.data.get(i).get(5))) {
-				this.data.get(i).add(Integer.toString(attendance.get(this.data.get(i).get(5))));
+	private void mapToData(HashMap<String, Integer> attendance) {
+		usersWithTime = 0;
+		for(int i = 0; i < this.tableData.size(); i++) {
+			if(attendance.containsKey(this.tableData.get(i).get(5))) {
+				this.tableData.get(i).add(Integer.toString(attendance.get(this.tableData.get(i).get(5))));
+				attendance.remove(this.tableData.get(i).get(5));
+				usersWithTime++;
 			}
 			else {
-				this.data.get(i).add(" ");
+				this.tableData.get(i).add(" ");
 			}
 		}
+		
+		for(Map.Entry<String, Integer> extraUser: attendance.entrySet()) {
+			extraUsers.add(new String[] {extraUser.getKey(),Integer.toString(extraUser.getValue())});
+		}
 	}
-	
 }

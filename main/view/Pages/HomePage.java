@@ -21,10 +21,14 @@ public class HomePage extends JPanel implements Observer{
 	
 	@Override
 	public void update(Observable updater, Object newState) {
-		
 		DefaultTableModel model = (DefaultTableModel) this.table.getModel();
+		
 		if(newState.toString() == "Add Attendance") {
 			String enterDate = JOptionPane.showInputDialog("Enter Date as 'Month day'");
+			
+			altertUserOfDates(((LoadRoster)updater).getUsersWithTimeAdded(),
+					((LoadRoster)updater).getExtraUsers());
+			
 			model.addColumn(enterDate);
 		}
 		
@@ -39,6 +43,17 @@ public class HomePage extends JPanel implements Observer{
 		revalidate();
 	}
 	
-	
-	
+	public void altertUserOfDates(int usersWithTimeAdded, String[][] extraUsers) {
+		String usersMessage = String.format("Data added for %d users in the roster\n\n", usersWithTimeAdded);
+		
+		if(extraUsers.length > 0) {
+			usersMessage += String.format("%s additional attendee was found:\n", extraUsers.length);
+			
+			for(String[] userData : extraUsers) {
+				usersMessage += String.format("%s was connected for %s minutes\n",userData[0], userData[1]);
+			}
+		}
+		
+		JOptionPane.showMessageDialog(null,usersMessage);
+	}
 }
