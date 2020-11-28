@@ -16,11 +16,6 @@ public class LoadRoster extends Observable implements Observer{
 		rosterLoaded = false;
 	}
 	
-	public void updateState(String newState){
-		this.setChanged();
-		this.notifyObservers(newState);
-	}
-	
 	private File findPath() {
 		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
 		JFileChooser chooser = new JFileChooser();
@@ -30,6 +25,10 @@ public class LoadRoster extends Observable implements Observer{
 		
 	}
 	
+	public void updateState(String newState){
+		this.setChanged();
+		this.notifyObservers(newState);
+	}
 	
 	public String[][] getPassedData(){
 		int rows = this.data.size();
