@@ -8,42 +8,59 @@ import java.io.*;
 import java.util.*;
 
 public class LoadRoster extends Observable implements Observer{
-	private File pathToCSV;
 	private ArrayList<ArrayList<String>> data;
-	private String[][] passedData;
-	private File pathToAttendance;
 	private boolean rosterLoaded;
 	
 	public LoadRoster() {
-		this.pathToCSV = null;
 		this.data = new ArrayList<ArrayList<String>>();
 		rosterLoaded = false;
 	}
 	
-	public void findPath() {
+	public void updateState(String newState){
+		this.setChanged();
+		this.notifyObservers(newState);
+	}
+	
+	private File findPath() {
 		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(filter);
-		int returnVal = chooser.showOpenDialog(null);
-		this.pathToCSV =  chooser.getSelectedFile();
+		chooser.showOpenDialog(null);
+		return chooser.getSelectedFile();
 		
 	}
 	
-	public File getPath() {
-		return this.pathToCSV;
+	
+	public String[][] getPassedData(){
+		int rows = this.data.size();
+		int rowLength = this.data.get(0).size();
+		int index = 0;
+		
+		String[][] passedData = new String[rows][rowLength];
+		for(ArrayList<String> row : data) {
+			passedData[index++] = row.toArray(new String[row.size()]);
+		}
+		
+		return passedData;
 	}
 	
-	public void readCSVFile() {
+	@Override
+	public void update(Observable updater, Object newState){
+		if(newState.toString() == "Load") {
+			this.readCSVFile(this.findPath());
+		}	
+		else if(newState.toString() == "Add Attendance" && this.rosterLoaded) {
+			this.readAttendanceData(this.findPath());
+		}
+		this.updateState(newState.toString());
+	}
+	
+	public void readCSVFile(File filePath) {
 		try {
 			String fileLine;
-			BufferedReader bReader = new BufferedReader(new FileReader(this.pathToCSV));
+			BufferedReader bReader = new BufferedReader(new FileReader(filePath));
 			while ((fileLine = bReader.readLine()) != null) {
-				ArrayList<String> tempArray = new ArrayList<String>(); 
-				String[] elements = fileLine.split(",");
-				for(int i = 0; i < elements.length; i++) {
-					tempArray.add(elements[i]);
-				}
-				this.data.add(tempArray);
+				this.data.add(new ArrayList<>(Arrays.asList(fileLine.split(","))));
 			}
 			bReader.close();
 		}
@@ -56,61 +73,12 @@ public class LoadRoster extends Observable implements Observer{
 		this.rosterLoaded = true;
 	}
 	
-	
-	public String[][] getPassedData(){
-		return this.passedData;
-	}
-	
-	@Override
-	public void update(Observable updater, Object newState){
-		if(newState.toString() == "Load") {
-			this.findPath();
-			this.readCSVFile();
-			this.convertToArrays(6);
-			this.updateState(newState.toString());
-		}	
-		if(newState.toString() == "Add Attendance") {
-			if(this.rosterLoaded) {
-				this.findAttendancePath();
-				this.readAttendanceData();
-				this.convertToArrays(this.passedData.length + 1);
-				this.updateState(newState.toString());
-			}
-			else {
-				System.out.println("LOL NO");
-			}
-		}
-	}
-	
-	public void updateState(String newState){
-		this.setChanged();
-		this.notifyObservers(newState);
-	}
-	
-	public void findAttendancePath() {
-		JFileChooser chooser = new JFileChooser();
-		int returnVal = chooser.showOpenDialog(null);
-		this.pathToAttendance =  chooser.getSelectedFile();
-		System.out.println(this.pathToAttendance.toString());
-	}
-	
-	public void convertToArrays(int rowLength) {
-		int rows = this.data.size();
-		this.passedData = new String[rows][rowLength];
-		for(int iterator = 0; iterator < rows; iterator++) {
-			ArrayList<String> tempList = (ArrayList<String>) this.data.get(iterator);
-			String[] addingToPassedData = Arrays.copyOf(tempList.toArray(), tempList.toArray().length, String[].class);
-			this.passedData[iterator] = addingToPassedData;
-		}
-	}
-	
-	public void readAttendanceData() {
+	public void readAttendanceData(File filePath) {
 		HashMap<String, Integer> attendance = new HashMap<String, Integer>();
 		try {
 			String fileLine;
-			BufferedReader bReader = new BufferedReader(new FileReader(this.pathToAttendance));
+			BufferedReader bReader = new BufferedReader(new FileReader(filePath));
 			while ((fileLine = bReader.readLine()) != null) {
-				ArrayList<String> tempArray = new ArrayList<String>(); 
 				String[] elements = fileLine.split(",");
 				String asurite = elements[0];
 				int minutes = Integer.parseInt(elements[1]);
