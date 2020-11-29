@@ -1,46 +1,84 @@
 package main.model;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.io.*;
 import java.util.*;
 
 public class LoadRoster extends Observable implements Observer{
-	private File pathToCSV;
-	private ArrayList<ArrayList<String>> data;
-	private String[][] passedData;
-	private File pathToAttendance;
+	private ArrayList<ArrayList<String>> tableData;
+	private ArrayList<String[]> extraUsers;
+	private int usersWithTime;
+	
 	private boolean rosterLoaded;
 	
 	public LoadRoster() {
-		this.pathToCSV = null;
-		this.data = new ArrayList<ArrayList<String>>();
+		this.tableData = new ArrayList<ArrayList<String>>();
 		rosterLoaded = false;
+		usersWithTime = 0;
+		this.extraUsers = new ArrayList<String[]>();
 	}
 	
-	public void findPath() {
+	public void updateState(String newState){
+		this.setChanged();
+		this.notifyObservers(newState);
+	}
+	
+	public String[][] getPassedData(){
+		int rows = this.tableData.size();
+		int rowLength = this.tableData.get(0).size();
+		int index = 0;
+		
+		String[][] passedData = new String[rows][rowLength];
+		for(ArrayList<String> row : tableData) {
+			passedData[index++] = row.toArray(new String[row.size()]);
+		}
+		
+		return passedData;
+	}
+	
+	public String[][] getExtraUsers(){
+		int numUsers = extraUsers == null ? 0 : extraUsers.size();
+		String[][] extraUsersArr = new String[numUsers][2];
+		int index = 0;
+		for(String[] extraUser : extraUsers) {
+			extraUsersArr[index++] = extraUser;
+		}
+		return extraUsersArr;
+	}
+	
+	public int getUsersWithTimeAdded() {
+		return usersWithTime;
+	}
+	
+	@Override
+	public void update(Observable updater, Object newState){
+		if(newState.toString() == "Load") {
+			this.readCSVFile(this.findPath());
+		}	
+		else if(newState.toString() == "Add Attendance" && this.rosterLoaded) {
+			this.readAttendanceData(this.findPath());
+		}
+		this.updateState(newState.toString());
+	}
+	
+	private File findPath() {
+		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
 		JFileChooser chooser = new JFileChooser();
-		int returnVal = chooser.showOpenDialog(null);
-		this.pathToCSV =  chooser.getSelectedFile();
+		chooser.setFileFilter(filter);
+		chooser.showOpenDialog(null);
+		return chooser.getSelectedFile();
 		
 	}
 	
-	public File getPath() {
-		return this.pathToCSV;
-	}
-	
-	public void readCSVFile() {
+	private void readCSVFile(File filePath) {
 		try {
 			String fileLine;
-			BufferedReader bReader = new BufferedReader(new FileReader(this.pathToCSV));
+			BufferedReader bReader = new BufferedReader(new FileReader(filePath));
 			while ((fileLine = bReader.readLine()) != null) {
-				ArrayList<String> tempArray = new ArrayList<String>(); 
-				String[] elements = fileLine.split(",");
-				for(int i = 0; i < elements.length; i++) {
-					tempArray.add(elements[i]);
-				}
-				this.data.add(tempArray);
+				this.tableData.add(new ArrayList<>(Arrays.asList(fileLine.split(","))));
 			}
 			bReader.close();
 		}
@@ -53,61 +91,12 @@ public class LoadRoster extends Observable implements Observer{
 		this.rosterLoaded = true;
 	}
 	
-	
-	public String[][] getPassedData(){
-		return this.passedData;
-	}
-	
-	@Override
-	public void update(Observable updater, Object newState){
-		if(newState.toString() == "Load") {
-			this.findPath();
-			this.readCSVFile();
-			this.convertToArrays(6);
-			this.updateState(newState.toString());
-		}	
-		if(newState.toString() == "Add Attendance") {
-			if(this.rosterLoaded) {
-				this.findAttendancePath();
-				this.readAttendanceData();
-				this.convertToArrays(this.passedData.length + 1);
-				this.updateState(newState.toString());
-			}
-			else {
-				System.out.println("LOL NO");
-			}
-		}
-	}
-	
-	public void updateState(String newState){
-		this.setChanged();
-		this.notifyObservers(newState);
-	}
-	
-	public void findAttendancePath() {
-		JFileChooser chooser = new JFileChooser();
-		int returnVal = chooser.showOpenDialog(null);
-		this.pathToAttendance =  chooser.getSelectedFile();
-		System.out.println(this.pathToAttendance.toString());
-	}
-	
-	public void convertToArrays(int rowLength) {
-		int rows = this.data.size();
-		this.passedData = new String[rows][rowLength];
-		for(int iterator = 0; iterator < rows; iterator++) {
-			ArrayList<String> tempList = (ArrayList<String>) this.data.get(iterator);
-			String[] addingToPassedData = Arrays.copyOf(tempList.toArray(), tempList.toArray().length, String[].class);
-			this.passedData[iterator] = addingToPassedData;
-		}
-	}
-	
-	public void readAttendanceData() {
+	private void readAttendanceData(File filePath) {
 		HashMap<String, Integer> attendance = new HashMap<String, Integer>();
 		try {
 			String fileLine;
-			BufferedReader bReader = new BufferedReader(new FileReader(this.pathToAttendance));
+			BufferedReader bReader = new BufferedReader(new FileReader(filePath));
 			while ((fileLine = bReader.readLine()) != null) {
-				ArrayList<String> tempArray = new ArrayList<String>(); 
 				String[] elements = fileLine.split(",");
 				String asurite = elements[0];
 				int minutes = Integer.parseInt(elements[1]);
@@ -127,15 +116,21 @@ public class LoadRoster extends Observable implements Observer{
 		
 	}
 	
-	public void mapToData(HashMap<String, Integer> attendance) {
-		for(int i = 0; i < this.data.size(); i++) {
-			if(attendance.containsKey(this.data.get(i).get(5))) {
-				this.data.get(i).add(Integer.toString(attendance.get(this.data.get(i).get(5))));
+	private void mapToData(HashMap<String, Integer> attendance) {
+		usersWithTime = 0;
+		for(int i = 0; i < this.tableData.size(); i++) {
+			if(attendance.containsKey(this.tableData.get(i).get(5))) {
+				this.tableData.get(i).add(Integer.toString(attendance.get(this.tableData.get(i).get(5))));
+				attendance.remove(this.tableData.get(i).get(5));
+				usersWithTime++;
 			}
 			else {
-				this.data.get(i).add(" ");
+				this.tableData.get(i).add(" ");
 			}
 		}
+		
+		for(Map.Entry<String, Integer> extraUser: attendance.entrySet()) {
+			extraUsers.add(new String[] {extraUser.getKey(),Integer.toString(extraUser.getValue())});
+		}
 	}
-	
 }
