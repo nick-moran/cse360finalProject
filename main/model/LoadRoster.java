@@ -3,8 +3,6 @@ package main.model;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-
 import java.io.*;
 import java.util.*;
 
@@ -64,6 +62,9 @@ public class LoadRoster extends Observable implements Observer{
 		else if(newState.toString() == "Add Attendance" && this.rosterLoaded) {
 			this.readAttendanceData(this.findPath());
 		}
+		else if(newState.toString() == "Save") {
+			this.writeToCSV(this.findPath());
+		}
 		this.updateState(newState.toString());
 	}
 	
@@ -76,12 +77,21 @@ public class LoadRoster extends Observable implements Observer{
 		return ((String[]) subList.toArray());
 	}
 	
-	// WIll be completed shortly
-//	private void writeToCSV(File filePath) {
-//		try {
-//			
-//		}
-//	}
+	private void writeToCSV(File filePath) {
+		try {
+			FileWriter csvWriter = new FileWriter(filePath);
+			csvWriter.append(String.join(",", this.headers));
+			csvWriter.append("\n");
+			for(ArrayList<String> row : tableData) {
+				csvWriter.append(String.join(",", row));
+				csvWriter.append("\n");
+			}
+			csvWriter.close();
+		}
+		catch(IOException e) {
+			System.out.println("IOException has occured");
+		}
+	}
 	
 	private File findPath() {
 		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});

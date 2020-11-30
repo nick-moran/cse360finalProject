@@ -9,7 +9,7 @@ import main.model.StateManager;
 
 public class PlotDataOption extends ClickableItem{
 	public PlotDataOption(StateManager state) {
-		super(state, "Save");
+		super(state, "Plot Data");
 	}
 	
 	@Override
