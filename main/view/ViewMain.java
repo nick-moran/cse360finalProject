@@ -53,7 +53,7 @@ public class ViewMain extends JFrame{
 	public static void main(String[] args) {
 		ViewMain frame = new ViewMain();
 		
-		frame.setSize(1000,800);
+		frame.setSize(1000,500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
