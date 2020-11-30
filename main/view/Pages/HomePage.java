@@ -72,11 +72,11 @@ public class HomePage extends JPanel implements Observer{
 				invalidDate = true;
 			}
 			try {
-				if(Integer.parseInt(enterDate.substring(0,2)) > 12 &&
+				if(Integer.parseInt(enterDate.substring(0,2)) > 12 ||
 						Integer.parseInt(enterDate.substring(0,2)) <= 0) {
 					invalidDate = true;
 				}
-				if(Integer.parseInt(enterDate.substring(3,5)) > 31 &&
+				if(Integer.parseInt(enterDate.substring(3,5)) > 31 ||
 						Integer.parseInt(enterDate.substring(3,5)) <= 0) {
 					invalidDate = true;
 				}
@@ -96,6 +96,7 @@ public class HomePage extends JPanel implements Observer{
 						+ "MM/DD";
 				JOptionPane.showMessageDialog(null,message);
 			}
+			((Roster)updater).flushExtraUsers();
 		}
 		
 		if(newState.toString() == "Load" || newState.toString() == "Add Attendance") {

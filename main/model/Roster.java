@@ -88,6 +88,11 @@ public class Roster extends Observable implements Observer{
 			extraUsersArr[index++] = extraUser;
 		}
 		return extraUsersArr;
+		
+	}
+	
+	public void flushExtraUsers() {
+		extraUsers = new ArrayList<String[]>();
 	}
 	
 	/**
