@@ -113,7 +113,7 @@ public class HomePage extends JPanel implements Observer{
 			 
 		    JFreeChart chart = ChartFactory.createScatterPlot(
 		        "Count of Attendees Based on Attendance", 
-		        "X-Axis", "Count", dataset);
+		        "% attended", "Count", dataset);
 		    
 		    XYPlot plot = (XYPlot)chart.getPlot();
 		    plot.setBackgroundPaint(new Color(255,228,196));
