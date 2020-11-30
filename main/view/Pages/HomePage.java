@@ -1,3 +1,11 @@
+/**
+ * This is the HomePage file. This renders the table and plots needed 
+ * for the home page. It chooses what to render based on the state.
+ * 
+ * @author Shakib Ahmed, Nick Moran, Madeleine Householder
+ * @version 1.0
+ * @since 2020-11-29
+ */
 package main.view.Pages;
 
 import java.util.Observable;
