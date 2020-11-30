@@ -10,6 +10,7 @@
 package main.view.Pages;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -45,6 +46,7 @@ public class HomePage extends JPanel implements Observer{
 						"Program", "Level", "ASURITE"},
 				0));
   		JScrollPane scrollPane = new JScrollPane(table);
+  		scrollPane.setPreferredSize(new Dimension(1000, 1000));
   		add(scrollPane);
 	}
 	
@@ -61,13 +63,39 @@ public class HomePage extends JPanel implements Observer{
 		DefaultTableModel model = (DefaultTableModel) this.table.getModel();
 		
 		if(newState.toString() == "Add Attendance") {
-			String enterDate = JOptionPane.showInputDialog("Enter Date as 'Month day'");
-			
-			altertUserOfDates(((Roster)updater).getUsersWithTimeAdded(),
-					((Roster)updater).getExtraUsers());
-			
-			model.addColumn(enterDate);
-			((Roster)updater).appendToDates(enterDate);
+			String enterDate = JOptionPane.showInputDialog("Enter Date as 'MM/DD'");
+			boolean invalidDate = false;
+			if(enterDate.length() != 5) {
+				invalidDate = true;
+			}
+			if(enterDate.charAt(2) != '/') {
+				invalidDate = true;
+			}
+			try {
+				if(Integer.parseInt(enterDate.substring(0,2)) > 12 &&
+						Integer.parseInt(enterDate.substring(0,2)) <= 0) {
+					invalidDate = true;
+				}
+				if(Integer.parseInt(enterDate.substring(3,5)) > 31 &&
+						Integer.parseInt(enterDate.substring(3,5)) <= 0) {
+					invalidDate = true;
+				}
+			}
+			catch(NumberFormatException e) {
+				invalidDate = true;
+			}
+			if(!invalidDate) {
+				altertUserOfDates(((Roster)updater).getUsersWithTimeAdded(),
+						((Roster)updater).getExtraUsers());
+				
+				model.addColumn(enterDate);
+				((Roster)updater).appendToDates(enterDate);
+			}
+			else {
+				String message = "This date is invalid. Please follow the pattern "
+						+ "MM/DD";
+				JOptionPane.showMessageDialog(null,message);
+			}
 		}
 		
 		if(newState.toString() == "Load" || newState.toString() == "Add Attendance") {
