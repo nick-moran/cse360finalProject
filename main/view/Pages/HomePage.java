@@ -1,5 +1,6 @@
 package main.view.Pages;
 
+import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -7,6 +8,14 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import main.model.LoadRoster;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 public class HomePage extends JPanel implements Observer{
 	private JTable table;
@@ -39,6 +48,21 @@ public class HomePage extends JPanel implements Observer{
 	  		for(String[] row : data) {
 	  			model.addRow(row);
 	  		}
+	  	
+		}
+		if(newState.toString() == "plot data") {
+			String[][] data = ((LoadRoster)updater).getPassedData();
+			XYDataset dataset = ((LoadRoster)updater).createPlotData(data);
+			 
+		    JFreeChart chart = ChartFactory.createScatterPlot(
+		        "Count of Attendees Based on Attendance", 
+		        "X-Axis", "Count", dataset);
+		    
+		    XYPlot plot = (XYPlot)chart.getPlot();
+		    plot.setBackgroundPaint(new Color(255,228,196));
+		    
+		    ChartPanel panel = new ChartPanel(chart);
+		    JOptionPane.showMessageDialog(null, panel);
 		}
 		repaint();
 		revalidate();
@@ -57,4 +81,6 @@ public class HomePage extends JPanel implements Observer{
 		
 		JOptionPane.showMessageDialog(null,usersMessage);
 	}
+	
+	
 }
