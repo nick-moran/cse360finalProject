@@ -1,3 +1,13 @@
+/**
+ * This is the LoadRoster file. It contains all the methods for rosterLoader.
+ * This finds CSV file paths and manages the state of the homepage. It also
+ * takes in the data for the table and manages the writing to CSV files
+ * 
+ * @author Shakib Ahmed, Nick Moran, Madeleine Householder
+ * @version 1.0
+ * @since 2020-11-29
+ */
+
 package main.model;
 
 import javax.swing.JFileChooser;
@@ -11,27 +21,48 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.io.*;
 import java.util.*;
 
-public class LoadRoster extends Observable implements Observer{
+/**
+ * This is the LoadRoster class. It has tableData which is a 2d array 
+ * list that is used to read in CSV file data. It also has the bool
+ * rosterLoaded which checks if a roster has been loaded to the table. 
+ * Then there is headers which is all the headers for the table.
+ * There is also usersWithTime which is an integer.
+ */
+public class Roster extends Observable implements Observer{
 	private ArrayList<ArrayList<String>> tableData;
 	private ArrayList<String[]> extraUsers;
 	private ArrayList<String> headers;
 	private int usersWithTime;
-	
 	private boolean rosterLoaded;
 	
-	public LoadRoster() {
+	/**
+	 * this is the loadRoster constructor and it initializes all values
+	 * in the class
+	 * @return nothing
+	 */
+	public Roster() {
 		this.tableData = new ArrayList<ArrayList<String>>();
 		rosterLoaded = false;
 		usersWithTime = 0;
 		this.extraUsers = new ArrayList<String[]>();
-		this.headers = new ArrayList<>(Arrays.asList("ID", "First Name", "Last Name", "Program", "Level", "ASURITE"));
+		this.headers = new ArrayList<>(Arrays.asList("ID", "First Name",
+				"Last Name", "Program", "Level", "ASURITE"));
 	}
 	
+	/**
+	 * This is updateState which takes in a newState and passes it on
+	 * @param newState is a string which represents the state it is in
+	 * @return nothing
+	 */
 	public void updateState(String newState){
 		this.setChanged();
 		this.notifyObservers(newState);
 	}
 	
+	/**
+	 * this is getPassedData which is a getter for the data as a 2d array
+	 * @return data in form of a 2d array
+	 */
 	public String[][] getPassedData(){
 		int rows = this.tableData.size();
 		int rowLength = this.tableData.get(0).size();
@@ -45,6 +76,10 @@ public class LoadRoster extends Observable implements Observer{
 		return passedData;
 	}
 	
+	/**
+	 * this is getExtraUsers which is a getter for extraUsers
+	 * @return a 2d of extraUsers
+	 */
 	public String[][] getExtraUsers(){
 		int numUsers = extraUsers == null ? 0 : extraUsers.size();
 		String[][] extraUsersArr = new String[numUsers][2];
@@ -55,10 +90,21 @@ public class LoadRoster extends Observable implements Observer{
 		return extraUsersArr;
 	}
 	
+	/**
+	 * This is getUsersWithTime which returns the amount of users with
+	 * attendance
+	 * @return an int that represents how many users were added
+	 */
 	public int getUsersWithTimeAdded() {
 		return usersWithTime;
 	}
 	
+	/**
+	 * This is update which takes in a state and reacts accordingly.
+	 * if it is load it reads the csv file. if it is findPath, it also reads
+	 * a csv file. If it is Save, it writes to a CSV file.
+	 * @return nothing
+	 */
 	@Override
 	public void update(Observable updater, Object newState){
 		if(newState.toString() == "Load") {
@@ -73,15 +119,28 @@ public class LoadRoster extends Observable implements Observer{
 		this.updateState(newState.toString());
 	}
 	
+	/**
+	 * AppendToDates takes in a date and appends it to the headers array
+	 * @param date is the new date that is being appended
+	 */
 	public void appendToDates(String date) {
 		this.headers.add(date);
 	}
 	
+	/**
+	 * This is the getter for the dates which is a subarray of headers
+	 * @return an array of dates from header
+	 */
 	public String[] getDates(){
 		List<String> subList = this.headers.subList(6, this.headers.size() + 1);
 		return ((String[]) subList.toArray());
 	}
 	
+	/**
+	 * This is writeToCSV which writes the data from loading and attendance
+	 * to a csvFile given with headers added to it
+	 * @param filePath is the destination of the CSV file
+	 */
 	private void writeToCSV(File filePath) {
 		try {
 			FileWriter csvWriter = new FileWriter(filePath);
@@ -98,6 +157,11 @@ public class LoadRoster extends Observable implements Observer{
 		}
 	}
 	
+	/**
+	 * Create a XYDataSet based on the data read in from load and attendance
+	 * @param data is the data from load and attendance
+	 * @return the XYDataset that has been created
+	 */
 	public XYDataset createPlotData(String[][] data) {
 		String date = headers.get(6);
 		XYSeriesCollection dataset = new XYSeriesCollection();
@@ -135,8 +199,13 @@ public class LoadRoster extends Observable implements Observer{
 		return dataset;
 	}
 	
+	/**
+	 * findPath returns a path from JFileChooser that the user selects
+	 * @return the file selected by the user
+	 */
 	private File findPath() {
-		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
+		FileFilter filter = new FileNameExtensionFilter("csv file",
+				new String[] {"csv"});
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(filter);
 		chooser.showOpenDialog(null);
@@ -144,6 +213,10 @@ public class LoadRoster extends Observable implements Observer{
 		
 	}
 	
+	/**
+	 * This will read a csvFile and write it contents to tableData
+	 * @param filePath is the path the readCSV file is on
+	 */
 	private void readCSVFile(File filePath) {
 		try {
 			String fileLine;
@@ -162,6 +235,11 @@ public class LoadRoster extends Observable implements Observer{
 		this.rosterLoaded = true;
 	}
 	
+	/**
+	 * This method reads a csvFile from the path passed in. It stores them in a 
+	 * hashMap. Then if there are duplicates, it will increment their values
+	 * @param filePath is the path of the CSV file for attendance
+	 */
 	private void readAttendanceData(File filePath) {
 		HashMap<String, Integer> attendance = new HashMap<String, Integer>();
 		try {
@@ -187,6 +265,11 @@ public class LoadRoster extends Observable implements Observer{
 		
 	}
 	
+	/**
+	 * This method is called after the data of attendance is added to a
+	 * hashmap. It will find corresponding ASURITES and assign their value
+	 * @param attendance is the hashmap containing all the data
+	 */
 	private void mapToData(HashMap<String, Integer> attendance) {
 		usersWithTime = 0;
 		for(int i = 0; i < this.tableData.size(); i++) {

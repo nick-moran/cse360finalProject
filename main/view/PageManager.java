@@ -8,14 +8,14 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import main.model.LoadRoster;
+import main.model.Roster;
 import main.model.StateManager;
 import main.view.Pages.*;
 
 public class PageManager extends JPanel implements Observer{
 	private HashMap<String, JPanel>stateToPage;
 	
-	public PageManager(LoadRoster rosterLoader) {
+	public PageManager(Roster rosterLoader) {
 		this.stateToPage = new HashMap<String, JPanel>();
 		this.stateToPage.put("about", new AboutPage());
 		HomePage homePage = new HomePage();
