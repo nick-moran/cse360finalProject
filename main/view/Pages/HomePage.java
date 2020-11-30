@@ -30,6 +30,7 @@ public class HomePage extends JPanel implements Observer{
 					((LoadRoster)updater).getExtraUsers());
 			
 			model.addColumn(enterDate);
+			((LoadRoster)updater).appendToDates(enterDate);
 		}
 		
 		if(newState.toString() == "Load" || newState.toString() == "Add Attendance") {
