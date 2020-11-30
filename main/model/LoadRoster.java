@@ -3,6 +3,11 @@ package main.model;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import java.io.*;
 import java.util.*;
 
@@ -93,6 +98,43 @@ public class LoadRoster extends Observable implements Observer{
 		}
 	}
 	
+	public XYDataset createPlotData(String[][] data) {
+		String date = headers.get(6);
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeries dataSeries = new  XYSeries(date);
+		
+		
+		for(int dateNum = 6; dateNum < data[0].length; dateNum++) {
+			int[] dataArray = new int [11];
+			
+			for(int userNum = 0; userNum < data.length; userNum++) {
+				int time = 0;
+				time = Integer.parseInt(data[userNum][dateNum]);
+				
+				time = (int) ( (float) (time / 75.0) * 10);
+				time = Math.min(time, 10);
+				dataArray[time]++;
+
+			}
+			
+			for(int iterator = 0; iterator < 11; iterator++) {
+				dataSeries.add((double) iterator / 10, dataArray[iterator]);
+			}
+			
+			dataset.addSeries(dataSeries);
+			
+			//check there is a next element
+			if(dateNum + 1 < data[0].length)
+			{
+				//reset dataSeries after adding to dataset
+				date = headers.get(dateNum+1);
+				dataSeries = new XYSeries(date);
+			}
+		}
+		
+		return dataset;
+	}
+	
 	private File findPath() {
 		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
 		JFileChooser chooser = new JFileChooser();
@@ -154,7 +196,7 @@ public class LoadRoster extends Observable implements Observer{
 				usersWithTime++;
 			}
 			else {
-				this.tableData.get(i).add(" ");
+				this.tableData.get(i).add("0");
 			}
 		}
 		
@@ -162,4 +204,5 @@ public class LoadRoster extends Observable implements Observer{
 			extraUsers.add(new String[] {extraUser.getKey(),Integer.toString(extraUser.getValue())});
 		}
 	}
+
 }
