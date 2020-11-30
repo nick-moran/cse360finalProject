@@ -30,7 +30,7 @@ import main.view.Pages.*;
  */
 public class PageManager extends JPanel implements Observer{
 	private HashMap<String, JPanel>stateToPage;
-	
+
 	/**
 	 * We create the hash map of states to pages.
 	 * Additionally, we make the home page an observer of the
