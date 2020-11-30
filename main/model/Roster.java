@@ -137,27 +137,6 @@ public class Roster extends Observable implements Observer{
 	}
 	
 	/**
-	 * This is writeToCSV which writes the data from loading and attendance
-	 * to a csvFile given with headers added to it
-	 * @param filePath is the destination of the CSV file
-	 */
-	private void writeToCSV(File filePath) {
-		try {
-			FileWriter csvWriter = new FileWriter(filePath);
-			csvWriter.append(String.join(",", this.headers));
-			csvWriter.append("\n");
-			for(ArrayList<String> row : tableData) {
-				csvWriter.append(String.join(",", row));
-				csvWriter.append("\n");
-			}
-			csvWriter.close();
-		}
-		catch(IOException e) {
-			System.out.println("IOException has occured");
-		}
-	}
-	
-	/**
 	 * Create a XYDataSet based on the data read in from load and attendance
 	 * @param data is the data from load and attendance
 	 * @return the XYDataset that has been created
@@ -197,6 +176,27 @@ public class Roster extends Observable implements Observer{
 		}
 		
 		return dataset;
+	}
+	
+	/**
+	 * This is writeToCSV which writes the data from loading and attendance
+	 * to a csvFile given with headers added to it
+	 * @param filePath is the destination of the CSV file
+	 */
+	private void writeToCSV(File filePath) {
+		try {
+			FileWriter csvWriter = new FileWriter(filePath);
+			csvWriter.append(String.join(",", this.headers));
+			csvWriter.append("\n");
+			for(ArrayList<String> row : tableData) {
+				csvWriter.append(String.join(",", row));
+				csvWriter.append("\n");
+			}
+			csvWriter.close();
+		}
+		catch(IOException e) {
+			System.out.println("IOException has occured");
+		}
 	}
 	
 	/**
