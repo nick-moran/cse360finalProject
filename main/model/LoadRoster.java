@@ -4,12 +4,14 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+
 import java.io.*;
 import java.util.*;
 
 public class LoadRoster extends Observable implements Observer{
 	private ArrayList<ArrayList<String>> tableData;
 	private ArrayList<String[]> extraUsers;
+	private ArrayList<String> headers;
 	private int usersWithTime;
 	
 	private boolean rosterLoaded;
@@ -19,6 +21,7 @@ public class LoadRoster extends Observable implements Observer{
 		rosterLoaded = false;
 		usersWithTime = 0;
 		this.extraUsers = new ArrayList<String[]>();
+		this.headers = new ArrayList<>(Arrays.asList("ID", "First Name", "Last Name", "Program", "Level", "ASURITE"));
 	}
 	
 	public void updateState(String newState){
@@ -63,6 +66,22 @@ public class LoadRoster extends Observable implements Observer{
 		}
 		this.updateState(newState.toString());
 	}
+	
+	public void appendToDates(String date) {
+		this.headers.add(date);
+	}
+	
+	public String[] getDates(){
+		List<String> subList = this.headers.subList(6, this.headers.size() + 1);
+		return ((String[]) subList.toArray());
+	}
+	
+	// WIll be completed shortly
+//	private void writeToCSV(File filePath) {
+//		try {
+//			
+//		}
+//	}
 	
 	private File findPath() {
 		FileFilter filter = new FileNameExtensionFilter("csv file", new String[] {"csv"});
